@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Argument Mapper</title>
+  <style>
+    :root {
+      --bg: #f3efe7;
+      --paper: rgba(255,255,255,0.92);
+      --ink: #1f1a17;
+      --muted: #6b625c;
+      --pro: #6f3fa5;
+      --con: #a53f6f;
+      --neutral: #455a64;
+      --border: rgba(40, 30, 20, 0.12);
+      --shadow: 0 12px 30px rgba(40, 25, 10, 0.10);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      background:
+        radial-gradient(circle at top left, rgba(120, 80, 150, 0.08), transparent 28%),
+        radial-gradient(circle at top right, rgba(180, 120, 70, 0.08), transparent 30%),
+        linear-gradient(180deg, #f7f3ec 0%, #efe7da 100%);
+      color: var(--ink);
+    }
+
+    .app {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    h1 {
+      margin: 0 0 14px 0;
+      font-size: 2rem;
+      letter-spacing: 0.02em;
+    }
+
+    .controls {
+      background: rgba(255,255,255,0.55);
+      border: 1px solid rgba(70, 50, 30, 0.10);
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+      margin-bottom: 22px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 260px;
+      resize: vertical;
+      border-radius: 14px;
+      border: 1px solid rgba(70, 50, 30, 0.15);
+      padding: 14px;
+      font-family: "Courier New", monospace;
+      font-size: 14px;
+      line-height: 1.45;
+      background: rgba(255,255,255,0.92);
+      color: #1f1a17;
+    }
+
+    .button-row {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 999px;
+      font-size: 15px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #5d3a87, #8e5cc7);
+      color: white;
+      box-shadow: 0 8px 18px rgba(93, 58, 135, 0.25);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    #output {
+      position: relative;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.70), rgba(255,255,255,0.58)),
+        repeating-linear-gradient(
+          0deg,
+          rgba(80,60,40,0.02),
+          rgba(80,60,40,0.02) 2px,
+          transparent 2px,
+          transparent 4px
+        );
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 34px;
+      box-shadow: var(--shadow);
+      min-height: 500px;
+      overflow: hidden;
+    }
+
+    .map-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .map-title {
+      font-size: 2.2rem;
+      margin: 0;
+      line-height: 1.1;
+    }
+
+    .map-subtitle {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 1.02rem;
+      font-style: italic;
+    }
+
+    .map-meta {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .column {
+      min-height: 280px;
+      padding: 14px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.35);
+      border: 1px solid rgba(70,50,30,0.08);
+    }
+
+    .column-title {
+      text-align: center;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .node {
+      position: relative;
+      border-radius: 20px;
+      padding: 16px 16px 14px 16px;
+      margin-bottom: 16px;
+      background: var(--paper);
+      border: 1px solid rgba(40, 30, 20, 0.10);
+      box-shadow: 0 10px 24px rgba(40, 25, 10, 0.08);
+      overflow: hidden;
+    }
+
+    .node::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 7px;
+      background: var(--accent, #777);
+    }
+
+    .node-label {
+      font-family: Arial, sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .node-title {
+      font-size: 1.08rem;
+      font-weight: bold;
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    .node-text {
+      font-size: 0.98rem;
+      line-height: 1.45;
+    }
+
+    .node-footer {
+      margin-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .strength-dots {
+      display: inline-flex;
+      gap: 4px;
+    }
+
+    .strength-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(40, 30, 20, 0.15);
+    }
+
+    .strength-dot.filled {
+      background: var(--accent, #777);
+      box-shadow: 0 0 10px color-mix(in srgb, var(--accent, #777) 40%, transparent);
+    }
+
+    .type-CLAIM { --accent: #6f3fa5; }
+    .type-EVIDENCE { --accent: #9c6b2f; }
+    .type-CONTEXT { --accent: #4f6d7a; }
+    .type-COUNTERCLAIM { --accent: #a53f6f; }
+    .type-REBUTTAL { --accent: #2f7d5b; }
+    .type-QUESTION { --accent: #3f6aa5; }
+
+    .side-PRO {
+      background: linear-gradient(180deg, rgba(111,63,165,0.08), rgba(255,255,255,0.2));
+    }
+
+    .side-CON {
+      background: linear-gradient(180deg, rgba(165,63,111,0.08), rgba(255,255,255,0.2));
+    }
+
+    .side-NEUTRAL {
+      background: linear-gradient(180deg, rgba(79,109,122,0.08), rgba(255,255,255,0.2));
+    }
+
+    .empty-note {
+      color: var(--muted);
+      font-style: italic;
+      text-align: center;
+      padding: 20px 8px;
+    }
+
+    .legend {
+      margin-top: 22px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+      justify-content: center;
+      padding-top: 16px;
+      border-top: 1px solid rgba(70,50,30,0.10);
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: Arial, sans-serif;
+      font-size: 0.78rem;
+      color: #4b423d;
+    }
+
+    .legend-line {
+      width: 34px;
+      height: 0;
+      border-top-width: 3px;
+      border-top-style: solid;
+      position: relative;
+    }
+
+    .legend-line::after {
+      content: "";
+      position: absolute;
+      right: -2px;
+      top: -5px;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 8px solid currentColor;
+    }
+
+    .legend-supports { color: #3c9c68; border-top-color: #3c9c68; }
+    .legend-challenges { color: #c74848; border-top-color: #c74848; border-top-style: dashed; }
+    .legend-rebuts { color: #d8892b; border-top-color: #d8892b; border-top-style: dashed; }
+    .legend-extends { color: #3f79c4; border-top-color: #3f79c4; }
+    .legend-contextualizes { color: #8c52b5; border-top-color: #8c52b5; border-top-style: dotted; }
+
+    .links-panel {
+      margin-top: 26px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(70,50,30,0.10);
+    }
+
+    .links-title {
+      font-family: Arial, sans-serif;
+      font-size: 0.82rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .link-chip {
+      display: inline-block;
+      margin: 0 8px 8px 0;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.65);
+      border: 1px solid rgba(70,50,30,0.10);
+      font-family: Arial, sans-serif;
+      font-size: 0.78rem;
+      color: #3d342f;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 15, 25, 0.55);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .modal.open {
+      display: flex;
+    }
+
+    .modal-card {
+      width: min(860px, 100%);
+      max-height: 85vh;
+      overflow: auto;
+      background: #fffdf8;
+      border-radius: 24px;
+      padding: 26px;
+      box-shadow: 0 22px 60px rgba(0,0,0,0.24);
+      border: 1px solid rgba(70,50,30,0.10);
+    }
+
+    .modal-card h2 {
+      margin-top: 0;
+    }
+
+    .help-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    .help-box {
+      background: rgba(111,63,165,0.05);
+      border: 1px solid rgba(70,50,30,0.08);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .help-box h3 {
+      margin-top: 0;
+      font-size: 1rem;
+    }
+
+    .help-box code, .help-box pre {
+      font-family: "Courier New", monospace;
+      font-size: 13px;
+    }
+
+    .help-box pre {
+      white-space: pre-wrap;
+      background: rgba(255,255,255,0.82);
+      border-radius: 12px;
+      padding: 12px;
+      overflow: auto;
+    }
+
+    .modal-close-row {
+      margin-top: 18px;
+      text-align: right;
+    }
+
+    @media (max-width: 980px) {
+      .columns,
+      .help-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>Argument Mapper</h1>
+
+    <div class="controls">
+      <textarea id="input"></textarea>
+      <div class="button-row">
+        <button onclick="loadVotingExample()">Voting Example</button>
+        <button onclick="loadAIExample()">AI Education Example</button>
+        <button onclick="loadInflationExample()">Inflation Example</button>
+        <button onclick="loadBlankTemplate()">Write Your Own Map</button>
+        <button onclick="openHelp()">Syntax Help</button>
+        <button onclick="render()">Render</button>
+      </div>
+    </div>
+
+    <div id="output"></div>
+  </div>
+
+  <div id="helpModal" class="modal" onclick="closeHelpIfBackdrop(event)">
+    <div class="modal-card">
+      <h2>Argument Mapper Syntax Guide</h2>
+
+      <div class="help-grid">
+        <div class="help-box">
+          <h3>Top-level fields</h3>
+          <pre>TITLE: Main title
+SUBTITLE: Optional subtitle
+THEME: scholarly | dramatic
+LAYOUT: debate | cascade
+PALETTE: any descriptive label
+BACKGROUND: paper | dark
+EMPHASIS: strength</pre>
+        </div>
+
+        <div class="help-box">
+          <h3>Node format</h3>
+          <pre>NODE: A1
+SIDE: PRO | CON | NEUTRAL
+TYPE: CLAIM | EVIDENCE | COUNTERCLAIM | REBUTTAL | CONTEXT | QUESTION
+LABEL: Short node title
+TEXT: Full argument text
+STRENGTH: 1-5</pre>
+        </div>
+
+        <div class="help-box">
+          <h3>Link format</h3>
+          <pre>LINK:
+FROM: A2
+TO: A1
+RELATION: supports | challenges | rebuts | extends | contextualizes</pre>
+        </div>
+
+        <div class="help-box">
+          <h3>Mini example</h3>
+          <pre>TITLE: Sample Map
+LAYOUT: debate
+
+NODE: P1
+SIDE: PRO
+TYPE: CLAIM
+LABEL: Main point
+TEXT: This is the central pro claim.
+STRENGTH: 5
+
+NODE: C1
+SIDE: CON
+TYPE: COUNTERCLAIM
+LABEL: Objection
+TEXT: This is a counterargument.
+STRENGTH: 4
+
+LINK:
+FROM: C1
+TO: P1
+RELATION: challenges</pre>
+        </div>
+      </div>
+
+      <div class="modal-close-row">
+        <button onclick="closeHelp()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const votingExample = `TITLE: Should Voting Be Mandatory?
+SUBTITLE: Participation vs. personal liberty
+THEME: scholarly
+LAYOUT: debate
+PALETTE: plum-gold-slate
+BACKGROUND: paper
+EMPHASIS: strength
+
+NODE: P1
+SIDE: PRO
+TYPE: CLAIM
+LABEL: Stronger democracy
+TEXT: Mandatory voting strengthens representative democracy.
+STRENGTH: 5
+
+NODE: P2
+SIDE: PRO
+TYPE: EVIDENCE
+LABEL: Broader participation
+TEXT: Higher turnout reduces the influence of extreme or unrepresentative groups.
+STRENGTH: 4
+
+NODE: P3
+SIDE: PRO
+TYPE: REBUTTAL
+LABEL: Minimal burden
+TEXT: Voting requires little time compared to its civic importance.
+STRENGTH: 3
+
+NODE: C1
+SIDE: CON
+TYPE: COUNTERCLAIM
+LABEL: Individual freedom
+TEXT: Citizens should not be forced to participate in political expression.
+STRENGTH: 5
+
+NODE: C2
+SIDE: CON
+TYPE: EVIDENCE
+LABEL: Coercion risk
+TEXT: Compulsory voting may lead to resentment or disengaged participation.
+STRENGTH: 4
+
+LINK:
+FROM: P2
+TO: P1
+RELATION: supports
+
+LINK:
+FROM: P3
+TO: C1
+RELATION: rebuts
+
+LINK:
+FROM: C1
+TO: P1
+RELATION: challenges
+
+LINK:
+FROM: C2
+TO: C1
+RELATION: supports`;
+
+    const aiExample = `TITLE: Is AI Harmful to Education?
+SUBTITLE: Learning, tools, and responsibility
+THEME: dramatic
+LAYOUT: debate
+PALETTE: indigo-rose-stone
+BACKGROUND: dark
+EMPHASIS: strength
+
+NODE: P1
+SIDE: PRO
+TYPE: CLAIM
+LABEL: Learning erosion
+TEXT: Overreliance on AI may weaken critical thinking skills.
+STRENGTH: 5
+
+NODE: P2
+SIDE: PRO
+TYPE: EVIDENCE
+LABEL: Shortcut behavior
+TEXT: Students may use AI to bypass the cognitive effort required for learning.
+STRENGTH: 4
+
+NODE: P3
+SIDE: PRO
+TYPE: EVIDENCE
+LABEL: Skill atrophy
+TEXT: Writing and reasoning skills may decline without regular practice.
+STRENGTH: 3
+
+NODE: C1
+SIDE: CON
+TYPE: CLAIM
+LABEL: Tool, not threat
+TEXT: AI is a tool that can enhance learning when used appropriately.
+STRENGTH: 5
+
+NODE: C2
+SIDE: CON
+TYPE: REBUTTAL
+LABEL: Guided use
+TEXT: Structured assignments can incorporate AI without replacing thinking.
+STRENGTH: 4
+
+NODE: C3
+SIDE: CON
+TYPE: EVIDENCE
+LABEL: Accessibility
+TEXT: AI tools can support students with different learning needs.
+STRENGTH: 3
+
+NODE: C4
+SIDE: CON
+TYPE: CONTEXT
+LABEL: Historical parallel
+TEXT: New technologies have always raised concerns about learning.
+STRENGTH: 2
+
+LINK:
+FROM: P2
+TO: P1
+RELATION: supports
+
+LINK:
+FROM: P3
+TO: P1
+RELATION: supports
+
+LINK:
+FROM: C2
+TO: P2
+RELATION: rebuts
+
+LINK:
+FROM: C1
+TO: P1
+RELATION: challenges
+
+LINK:
+FROM: C3
+TO: C1
+RELATION: supports
+
+LINK:
+FROM: C4
+TO: C1
+RELATION: contextualizes`;
+
+    const inflationExample = `TITLE: What Is Inflation?
+SUBTITLE: Causes, effects, and interpretation
+THEME: scholarly
+LAYOUT: cascade
+PALETTE: slate-amber-ink
+BACKGROUND: paper
+EMPHASIS: strength
+
+NODE: A1
+SIDE: NEUTRAL
+TYPE: CLAIM
+LABEL: Definition
+TEXT: Inflation is a general increase in prices over time.
+STRENGTH: 5
+
+NODE: A2
+SIDE: NEUTRAL
+TYPE: EVIDENCE
+LABEL: Purchasing power
+TEXT: Inflation reduces the purchasing power of money.
+STRENGTH: 4
+
+NODE: A3
+SIDE: NEUTRAL
+TYPE: CONTEXT
+LABEL: Measurement
+TEXT: Inflation is often measured using indices like the Consumer Price Index.
+STRENGTH: 3
+
+NODE: A4
+SIDE: NEUTRAL
+TYPE: COUNTERCLAIM
+LABEL: Not always harmful
+TEXT: Moderate inflation can support economic growth.
+STRENGTH: 4
+
+NODE: A5
+SIDE: NEUTRAL
+TYPE: REBUTTAL
+LABEL: Instability risk
+TEXT: High or unpredictable inflation creates economic uncertainty.
+STRENGTH: 4
+
+LINK:
+FROM: A2
+TO: A1
+RELATION: extends
+
+LINK:
+FROM: A3
+TO: A1
+RELATION: contextualizes
+
+LINK:
+FROM: A4
+TO: A1
+RELATION: challenges
+
+LINK:
+FROM: A5
+TO: A4
+RELATION: rebuts`;
+
+    const blankTemplate = `TITLE: My Argument Map
+SUBTITLE: Add a subtitle here
+THEME: scholarly
+LAYOUT: debate
+PALETTE: custom
+BACKGROUND: paper
+EMPHASIS: strength
+
+NODE: P1
+SIDE: PRO
+TYPE: CLAIM
+LABEL: Main claim
+TEXT: Write your first argument here.
+STRENGTH: 5
+
+NODE: C1
+SIDE: CON
+TYPE: COUNTERCLAIM
+LABEL: Counterpoint
+TEXT: Write an opposing point here.
+STRENGTH: 4
+
+LINK:
+FROM: C1
+TO: P1
+RELATION: challenges`;
+
+    function setInputAndRender(text) {
+      document.getElementById("input").value = text;
+      render();
+    }
+
+    function loadVotingExample() {
+      setInputAndRender(votingExample);
+    }
+
+    function loadAIExample() {
+      setInputAndRender(aiExample);
+    }
+
+    function loadInflationExample() {
+      setInputAndRender(inflationExample);
+    }
+
+    function loadBlankTemplate() {
+      document.getElementById("input").value = blankTemplate;
+      render();
+    }
+
+    function openHelp() {
+      document.getElementById("helpModal").classList.add("open");
+    }
+
+    function closeHelp() {
+      document.getElementById("helpModal").classList.remove("open");
+    }
+
+    function closeHelpIfBackdrop(event) {
+      if (event.target.id === "helpModal") {
+        closeHelp();
+      }
+    }
+
+    function parseInput(text) {
+      const lines = text.split("\n");
+      const metadata = {};
+      const nodes = [];
+      const links = [];
+
+      let currentNode = null;
+      let currentLink = null;
+
+      lines.forEach(rawLine => {
+        const line = rawLine.trim();
+        if (!line) return;
+
+        if (line.startsWith("NODE:")) {
+          if (currentNode) nodes.push(currentNode);
+          if (currentLink) {
+            links.push(currentLink);
+            currentLink = null;
+          }
+          currentNode = { id: line.replace("NODE:", "").trim() };
+          return;
+        }
+
+        if (line.startsWith("LINK:")) {
+          if (currentNode) {
+            nodes.push(currentNode);
+            currentNode = null;
+          }
+          if (currentLink) links.push(currentLink);
+          currentLink = {};
+          return;
+        }
+
+        const [rawKey, ...rest] = line.split(":");
+        const key = rawKey.trim();
+        const value = rest.join(":").trim();
+
+        if (currentNode) {
+          if (key === "SIDE") currentNode.side = value;
+          if (key === "TYPE") currentNode.type = value;
+          if (key === "LABEL") currentNode.label = value;
+          if (key === "TEXT") currentNode.text = value;
+          if (key === "STRENGTH") currentNode.strength = Number(value);
+        } else if (currentLink) {
+          if (key === "FROM") currentLink.from = value;
+          if (key === "TO") currentLink.to = value;
+          if (key === "RELATION") currentLink.relation = value;
+        } else {
+          metadata[key] = value;
+        }
+      });
+
+      if (currentNode) nodes.push(currentNode);
+      if (currentLink) links.push(currentLink);
+
+      return { metadata, nodes, links };
+    }
+
+    function strengthDots(strength = 1) {
+      let html = '<div class="strength-dots">';
+      for (let i = 1; i <= 5; i++) {
+        html += `<span class="strength-dot ${i <= strength ? "filled" : ""}"></span>`;
+      }
+      html += "</div>";
+      return html;
+    }
+
+    function nodeHTML(node) {
+      const sideClass = `side-${node.side || "NEUTRAL"}`;
+      const typeClass = `type-${node.type || "CLAIM"}`;
+      const strength = Math.max(1, Math.min(5, Number(node.strength) || 1));
+      const scale = 0.92 + strength * 0.05;
+
+      return `
+        <div class="node ${sideClass} ${typeClass}" id="node-${node.id}" style="transform: scale(${scale}); transform-origin: top center;">
+          <div class="node-label">${node.type || ""}</div>
+          <div class="node-title">${node.label || node.id}</div>
+          <div class="node-text">${node.text || ""}</div>
+          <div class="node-footer">
+            <span>${node.id}</span>
+            ${strengthDots(strength)}
+          </div>
+        </div>
+      `;
+    }
+
+    function getLinkStyle(relation) {
+      const r = (relation || "").toLowerCase();
+
+      if (r === "supports") {
+        return { color: "#3c9c68", width: 3.5, opacity: 0.9, dasharray: "", marker: "supports" };
+      }
+      if (r === "challenges") {
+        return { color: "#c74848", width: 3.2, opacity: 0.88, dasharray: "10 7", marker: "challenges" };
+      }
+      if (r === "rebuts") {
+        return { color: "#d8892b", width: 4, opacity: 0.92, dasharray: "14 6 4 6", marker: "rebuts" };
+      }
+      if (r === "extends") {
+        return { color: "#3f79c4", width: 3, opacity: 0.82, dasharray: "", marker: "extends" };
+      }
+      if (r === "contextualizes") {
+        return { color: "#8c52b5", width: 3, opacity: 0.82, dasharray: "2 8", marker: "contextualizes" };
+      }
+
+      return { color: "#777", width: 3, opacity: 0.8, dasharray: "", marker: "extends" };
+    }
+
+    function drawConnections(links) {
+      const svg = document.getElementById("connections");
+      const output = document.getElementById("output");
+      svg.innerHTML = "";
+
+      const containerRect = output.getBoundingClientRect();
+      const outputWidth = containerRect.width;
+
+      const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+      defs.innerHTML = `
+        <marker id="arrow-supports" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#3c9c68"></path>
+        </marker>
+        <marker id="arrow-challenges" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#c74848"></path>
+        </marker>
+        <marker id="arrow-rebuts" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#d8892b"></path>
+        </marker>
+        <marker id="arrow-extends" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#3f79c4"></path>
+        </marker>
+        <marker id="arrow-contextualizes" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#8c52b5"></path>
+        </marker>
+        <filter id="lineGlow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="1.5" result="blur"/>
+          <feMerge>
+            <feMergeNode in="blur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      `;
+      svg.appendChild(defs);
+
+      links.forEach(link => {
+        const fromEl = document.getElementById("node-" + link.from);
+        const toEl = document.getElementById("node-" + link.to);
+        if (!fromEl || !toEl) return;
+
+        const fromRect = fromEl.getBoundingClientRect();
+        const toRect = toEl.getBoundingClientRect();
+
+        const fromLeft = fromRect.left - containerRect.left;
+        const fromRight = fromRect.right - containerRect.left;
+        const toLeft = toRect.left - containerRect.left;
+        const toRight = toRect.right - containerRect.left;
+
+        const fromCenterX = fromLeft + fromRect.width / 2;
+        const toCenterX = toLeft + toRect.width / 2;
+        const fromCenterY = fromRect.top + fromRect.height / 2 - containerRect.top;
+        const toCenterY = toRect.top + toRect.height / 2 - containerRect.top;
+
+        const horizontalGap = Math.abs(fromCenterX - toCenterX);
+        const style = getLinkStyle(link.relation);
+
+        let d = "";
+
+        if (horizontalGap < 120) {
+          const avgCenterX = (fromCenterX + toCenterX) / 2;
+
+          let startX, endX, spineX;
+
+          if (avgCenterX < outputWidth * 0.33) {
+            startX = fromRight;
+            endX = toRight;
+            spineX = Math.min(outputWidth - 24, Math.max(startX, endX) + 34);
+          } else if (avgCenterX > outputWidth * 0.66) {
+            startX = fromLeft;
+            endX = toLeft;
+            spineX = Math.max(24, Math.min(startX, endX) - 34);
+          } else {
+            startX = fromLeft;
+            endX = toLeft;
+            spineX = Math.max(24, Math.min(startX, endX) - 34);
+          }
+
+          const startY = fromCenterY;
+          const endY = toCenterY;
+
+          const outBend = startX < spineX ? 18 : -18;
+          const inBend = endX < spineX ? 18 : -18;
+
+          d = [
+            `M ${startX} ${startY}`,
+            `C ${startX + outBend} ${startY}, ${spineX - outBend} ${startY}, ${spineX} ${startY}`,
+            `L ${spineX} ${endY}`,
+            `C ${spineX - inBend} ${endY}, ${endX + inBend} ${endY}, ${endX} ${endY}`
+          ].join(" ");
+        } else {
+          const startX = fromCenterX < toCenterX ? fromRight : fromLeft;
+          const endX = fromCenterX < toCenterX ? toLeft : toRight;
+          const startY = fromCenterY;
+          const endY = toCenterY;
+
+          const curve = Math.max(60, horizontalGap * 0.35);
+          const c1x = startX + (startX < endX ? curve : -curve);
+          const c2x = endX - (startX < endX ? curve : -curve);
+
+          d = `M ${startX} ${startY} C ${c1x} ${startY}, ${c2x} ${endY}, ${endX} ${endY}`;
+        }
+
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", d);
+        path.setAttribute("fill", "none");
+        path.setAttribute("stroke", style.color);
+        path.setAttribute("stroke-width", style.width);
+        path.setAttribute("opacity", style.opacity);
+        path.setAttribute("stroke-linecap", "round");
+        path.setAttribute("marker-end", `url(#arrow-${style.marker})`);
+        path.setAttribute("filter", "url(#lineGlow)");
+        if (style.dasharray) {
+          path.setAttribute("stroke-dasharray", style.dasharray);
+        }
+
+        svg.appendChild(path);
+      });
+    }
+
+    function render() {
+      const text = document.getElementById("input").value;
+      const { metadata, nodes, links } = parseInput(text);
+
+      const proNodes = nodes.filter(n => (n.side || "").toUpperCase() === "PRO");
+      const conNodes = nodes.filter(n => (n.side || "").toUpperCase() === "CON");
+      const neutralNodes = nodes.filter(n => {
+        const side = (n.side || "NEUTRAL").toUpperCase();
+        return side !== "PRO" && side !== "CON";
+      });
+
+      const output = document.getElementById("output");
+
+      output.innerHTML = `
+        <svg id="connections" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;"></svg>
+
+        <div class="map-header">
+          <h2 class="map-title">${metadata.TITLE || "Untitled Argument Map"}</h2>
+          <div class="map-subtitle">${metadata.SUBTITLE || ""}</div>
+          <div class="map-meta">
+            ${metadata.THEME || "default"} · ${metadata.LAYOUT || "standard"} · ${metadata.PALETTE || "default"}
+          </div>
+        </div>
+
+        <div class="columns">
+          <div class="column">
+            <div class="column-title">Pro</div>
+            ${proNodes.length ? proNodes.map(nodeHTML).join("") : '<div class="empty-note">No pro arguments in this view.</div>'}
+          </div>
+
+          <div class="column">
+            <div class="column-title">Context / Neutral</div>
+            ${neutralNodes.length ? neutralNodes.map(nodeHTML).join("") : '<div class="empty-note">No neutral arguments in this view.</div>'}
+          </div>
+
+          <div class="column">
+            <div class="column-title">Con</div>
+            ${conNodes.length ? conNodes.map(nodeHTML).join("") : '<div class="empty-note">No con arguments in this view.</div>'}
+          </div>
+        </div>
+
+        <div class="legend">
+          <div class="legend-item"><span class="legend-line legend-supports"></span> supports</div>
+          <div class="legend-item"><span class="legend-line legend-challenges"></span> challenges</div>
+          <div class="legend-item"><span class="legend-line legend-rebuts"></span> rebuts</div>
+          <div class="legend-item"><span class="legend-line legend-extends"></span> extends</div>
+          <div class="legend-item"><span class="legend-line legend-contextualizes"></span> contextualizes</div>
+        </div>
+
+        <div class="links-panel">
+          <div class="links-title">Relationships</div>
+          ${links.map(link => `<span class="link-chip">${link.from} → ${link.to} · ${link.relation}</span>`).join("")}
+        </div>
+      `;
+
+      setTimeout(() => drawConnections(links), 50);
+    }
+
+    window.onload = loadInflationExample;
+  </script>
+</body>
+</html>
