@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Gallery Architect | Drag & Drop Edition</title>
+    <style>
+        /* TOOL LAYOUT */
+        body { font-family: -apple-system, sans-serif; display: flex; height: 100vh; margin: 0; background: #e0e0e0; }
+        
+        #sidebar { width: 320px; padding: 20px; background: #fff; border-right: 1px solid #bbb; overflow-y: auto; }
+        #preview-zone { flex-grow: 1; padding: 30px; overflow-y: auto; background: #f5f5f5; border-right: 1px solid #bbb; }
+        #code-panel { width: 400px; padding: 20px; background: #1a1a1a; color: #00ff41; display: flex; flex-direction: column; }
+
+        .input-group { margin-bottom: 12px; }
+        label { display: block; font-size: 0.7rem; font-weight: bold; color: #555; text-transform: uppercase; margin-bottom: 3px; }
+        input, textarea, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 0.9rem; }
+        
+        /* DROP ZONE STYLING */
+        #drop-zone {
+            border: 2px dashed #ccc;
+            border-radius: 4px;
+            padding: 20px;
+            text-align: center;
+            color: #999;
+            font-size: 0.8rem;
+            transition: 0.3s;
+            cursor: pointer;
+            background: #fafafa;
+        }
+        #drop-zone.highlight { border-color: #0078d7; background: #eef7ff; color: #0078d7; }
+
+        button { cursor: pointer; border: none; border-radius: 4px; font-weight: bold; transition: 0.2s; }
+        .btn-add { background: #0078d7; color: white; width: 100%; padding: 12px; margin-top: 10px; }
+        .btn-add:hover { background: #005a9e; }
+        .btn-export { background: #28a745; color: white; width: 100%; padding: 10px; margin-top: 5px; }
+        .btn-sort { background: #444; color: white; width: 48%; padding: 8px; font-size: 0.8rem; margin-top: 5px; }
+        .btn-delete { background: #ff4d4d; color: white; padding: 4px 8px; font-size: 0.7rem; float: right; }
+
+        /* GENERATED STYLES */
+        .style-plinth { background: white; padding: 20px; border: 1px solid #ccc; font-family: "Georgia", serif; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); color: #222; position: relative; width: 100%; box-sizing: border-box;}
+        .style-workbench { background: #000; color: #00ff41; padding: 20px; border: 1px solid #00ff41; font-family: "Courier New", monospace; margin-bottom: 20px; position: relative; width: 100%; box-sizing: border-box;}
+        
+        .preview-img { width: 100%; height: 180px; background-size: cover; background-position: center; background-color: #ddd; margin-bottom: 15px; border: 1px solid #eee; }
+        
+        #code-output { flex-grow: 1; width: 100%; background: #000; color: #00ff41; border: 1px solid #333; font-family: monospace; font-size: 0.75rem; padding: 10px; resize: none; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <section id="sidebar">
+        <h2>Gallery Tool</h2>
+        
+        <div class="input-group">
+            <label>1. Select Style</label>
+            <select id="style-select">
+                <option value="style-plinth">The Plinth (Curatorial)</option>
+                <option value="style-workbench">The Workbench (Procedural)</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>2. Drag & Drop Image</label>
+            <div id="drop-zone">Drop image here or click to upload</div>
+            <input type="file" id="file-picker" accept="image/*" style="display:none">
+            <p id="file-display" style="font-size: 0.7rem; color: #0078d7; margin: 4px 0; text-align:center;"></p>
+        </div>
+
+        <div class="input-group">
+            <label>3. Document Title</label>
+            <input type="text" id="title-in" placeholder="Entry Title">
+        </div>
+
+        <div class="input-group">
+            <label>4. Author / Agent</label>
+            <input type="text" id="author-in" placeholder="Creator Name">
+        </div>
+
+        <div class="input-group">
+            <label>5. Date (YYYY-MM-DD)</label>
+            <input type="text" id="date-in">
+        </div>
+
+        <div class="input-group">
+            <label>6. Annotation</label>
+            <textarea id="annotation-in" rows="4" placeholder="Scholarly notes..."></textarea>
+        </div>
+
+        <button class="btn-add" onclick="addToArchive()">+ Add to Collection</button>
+        
+        <div style="display:flex; justify-content:space-between; margin-top:15px;">
+            <button class="btn-sort" onclick="sortArchive('date')">Sort Date</button>
+            <button class="btn-sort" onclick="sortArchive('title')">Sort Title</button>
+        </div>
+        <button class="btn-export" onclick="downloadGallery()">Download HTML File</button>
+    </section>
+
+    <section id="preview-zone">
+        <h3 style="margin-top:0;">Visual Gallery Preview</h3>
+        <div id="gallery"></div>
+    </section>
+
+    <section id="code-panel">
+        <h3 style="margin:0; font-size: 1rem;">Live Code Engine</h3>
+        <p style="font-size: 0.7rem; color: #888;">Code for your final archive:</p>
+        <textarea id="code-output" readonly></textarea>
+        <button onclick="copyToClipboard()" style="background:#333; color:#fff; border:1px solid #555; padding:8px; margin-top:10px;">Copy All Code</button>
+    </section>
+
+    <script>
+        let archiveDeck = [];
+        let tempImageUrl = "";
+        let tempFilename = "";
+
+        window.onload = function() { setTodayDate(); setupDragAndDrop(); };
+
+        function setTodayDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date-in').value = today;
+        }
+
+        // --- DRAG AND DROP LOGIC ---
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('drop-zone');
+            const fileInput = document.getElementById('file-picker');
+
+            dropZone.onclick = () => fileInput.click();
+
+            fileInput.onchange = (e) => handleFiles(e.target.files);
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(name => {
+                dropZone.addEventListener(name, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(name => {
+                dropZone.addEventListener(name, () => dropZone.classList.add('highlight'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(name => {
+                dropZone.addEventListener(name, () => dropZone.classList.remove('highlight'), false);
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                handleFiles(e.dataTransfer.files);
+            }, false);
+        }
+
+        function handleFiles(files) {
+            const file = files[0];
+            if (file && file.type.startsWith('image/')) {
+                tempFilename = file.name;
+                // Create a temporary local URL for the preview only
+                tempImageUrl = URL.createObjectURL(file);
+                document.getElementById('file-display').innerText = "Ready: " + tempFilename;
+            }
+        }
+
+        function addToArchive() {
+            const newItem = {
+                id: Date.now(),
+                style: document.getElementById('style-select').value,
+                displayUrl: tempImageUrl || "placeholder.jpg", // used for the tool preview
+                exportName: tempFilename || "placeholder.jpg", // used for the exported code
+                title: document.getElementById('title-in').value || "Untitled",
+                author: document.getElementById('author-in').value || "Unknown",
+                date: document.getElementById('date-in').value || "0000-00-00",
+                annotation: document.getElementById('annotation-in').value || ""
+            };
+
+            archiveDeck.push(newItem);
+            refreshAll();
+            clearForm();
+        }
+
+        function clearForm() {
+            document.getElementById('title-in').value = "";
+            document.getElementById('author-in').value = "";
+            document.getElementById('annotation-in').value = "";
+            document.getElementById('file-display').innerText = "";
+            tempImageUrl = "";
+            tempFilename = "";
+            setTodayDate();
+        }
+
+        function removeCard(id) {
+            archiveDeck = archiveDeck.filter(item => item.id !== id);
+            refreshAll();
+        }
+
+        function sortArchive(key) {
+            archiveDeck.sort((a, b) => a[key].localeCompare(b[key]));
+            refreshAll();
+        }
+
+        function refreshAll() {
+            const gallery = document.getElementById('gallery');
+            const codeOutput = document.getElementById('code-output');
+            
+            gallery.innerHTML = "";
+            let generatedCode = "\n";
+
+            archiveDeck.forEach(item => {
+                const card = document.createElement('div');
+                card.className = item.style;
+                card.innerHTML = `
+                    <button class="btn-delete" onclick="removeCard(${item.id})">Delete</button>
+                    <div class="preview-img" style="background-image:url('${item.displayUrl}')"></div>
+                    <h3>${item.title}</h3>
+                    <p><em>${item.author}</em> | ${item.date}</p>
+                    <hr style="border:0; border-top:1px solid currentColor; opacity:0.3;">
+                    <p><small>${item.annotation}</small></p>
+                `;
+                gallery.appendChild(card);
+
+                generatedCode += 
+`<figure class="${item.style}">
+  <img src="${item.exportName}" alt="${item.title}">
+  <figcaption>
+    <h3>${item.title}</h3>
+    <p><em>${item.author}</em> | ${item.date}</p>
+    <p>${item.annotation}</p>
+  </figcaption>
+</figure>\n\n`;
+            });
+
+            codeOutput.value = generatedCode + "";
+        }
+
+        function copyToClipboard() {
+            const copyText = document.getElementById("code-output");
+            copyText.select();
+            document.execCommand("copy");
+            alert("Full Gallery Code copied!");
+        }
+
+        function downloadGallery() {
+            const content = document.getElementById("code-output").value;
+            const fullDoc = `<!DOCTYPE html><html><head><style>
+                body { display: flex; flex-wrap: wrap; gap: 20px; padding: 40px; background: #f0f0f0; }
+                .style-plinth { background: white; padding: 20px; border: 1px solid #ccc; font-family: Georgia, serif; width: 300px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+                .style-workbench { background: #000; color: #00ff41; padding: 20px; border: 1px solid #00ff41; font-family: monospace; width: 300px; }
+                img { width: 100%; height: auto; display: block; margin-bottom: 10px; }
+            </style></head><body>${content}</body></html>`;
+            
+            const blob = new Blob([fullDoc], {type: "text/html"});
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "my-research-gallery.html";
+            a.click();
+        }
+    </script>
+</body>
+</html>
