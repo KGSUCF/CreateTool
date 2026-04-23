@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Low-Code Tools — ENG6819</title>
+  <title>The Chat Spat — Low-Code Tools · ENG6819</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -12,10 +12,13 @@
       --surface:   #161b22;
       --border:    #21293a;
       --accent:    #e94560;
-      --accent2:   #0f3460;
       --text:      #e6edf3;
-      --muted:     #7d8fa1;
+      --muted:     #a8b8cc;
       --card-hover:#1c2333;
+
+      --ai-claude:  #e87040;
+      --ai-gemini:  #4285f4;
+      --ai-chatgpt: #10a37f;
     }
 
     body {
@@ -98,9 +101,7 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 28px 26px 24px;
-      text-decoration: none;
-      color: inherit;
+      padding: 28px 26px 22px;
       display: flex;
       flex-direction: column;
       gap: 14px;
@@ -129,35 +130,15 @@
       font-size: 1.9rem;
       line-height: 1;
     }
-    .card-title {
-      font-size: 1.05rem;
-      font-weight: 700;
-      letter-spacing: -0.2px;
-    }
-    .card-desc {
-      font-size: 0.85rem;
-      color: var(--muted);
-      line-height: 1.65;
-      flex: 1;
-    }
-    .card-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: var(--accent);
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      margin-top: 4px;
-    }
-    .card-link svg {
-      transition: transform 0.15s;
-    }
-    .card:hover .card-link svg { transform: translateX(3px); }
 
+    /* category tag + AI badge on same row */
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
     .card-tag {
-      display: inline-block;
       font-size: 0.65rem;
       letter-spacing: 1.2px;
       text-transform: uppercase;
@@ -166,25 +147,78 @@
       border: 1px solid var(--border);
       border-radius: 4px;
       padding: 3px 8px;
-      align-self: flex-start;
     }
+    .ai-badge {
+      font-size: 0.65rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 700;
+      border-radius: 4px;
+      padding: 3px 8px;
+      border: 1px solid;
+    }
+    .ai-claude  { color: var(--ai-claude);  border-color: var(--ai-claude);  background: rgba(232,112,64,0.08);  }
+    .ai-gemini  { color: var(--ai-gemini);  border-color: var(--ai-gemini);  background: rgba(66,133,244,0.08);  }
+    .ai-chatgpt { color: var(--ai-chatgpt); border-color: var(--ai-chatgpt); background: rgba(16,163,127,0.08); }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+    }
+    .card-desc {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.7;
+      flex: 1;
+    }
+
+    /* two links side by side at the bottom */
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding-top: 4px;
+      border-top: 1px solid var(--border);
+      margin-top: 2px;
+    }
+    .card-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: opacity 0.15s;
+      padding: 6px 0;
+    }
+    .card-link:hover { opacity: 0.75; }
+    .card-link-tool   { color: var(--accent); }
+    .card-link-readme { color: var(--muted); }
+    .card-link svg { transition: transform 0.15s; }
+    .card-link:hover svg { transform: translateX(3px); }
 
     /* ── Footer ───────────────────────────────────── */
     footer {
       text-align: center;
       padding: 20px 24px;
-      font-size: 0.75rem;
+      font-size: 0.78rem;
       color: var(--muted);
       border-top: 1px solid var(--border);
     }
-    footer a { color: var(--muted); text-underline-offset: 3px; }
+    footer a {
+      color: var(--muted);
+      text-underline-offset: 3px;
+    }
   </style>
 </head>
 <body>
 
   <header class="hero">
     <div class="hero-tag">UCF ENG6819 · Critical Making</div>
-    <h1>Low-Code <span>Tools</span></h1>
+    <h1>The Chat Spat — <span>Low-Code Tools</span></h1>
     <p>
       A collection of browser-based tools built to lower the barrier between
       ideas and code. Each tool lets you create, configure, and export
@@ -196,26 +230,36 @@
     <div class="section-label">Tools — click any card to open</div>
     <div class="cards">
 
-      <a class="card" href="GenPatternSketchpad/GenPatternSketchpad.html">
+      <div class="card">
         <div class="card-icon">◈</div>
-        <div class="card-tag">Generative Art</div>
+        <div class="card-meta">
+          <span class="card-tag">Generative Art</span>
+          <span class="ai-badge ai-claude">Claude</span>
+        </div>
         <div class="card-title">Generative Pattern Sketchpad</div>
         <div class="card-desc">
           Design animated geometric and particle patterns using sliders and
           dropdowns. Adjust shape, palette, density, speed, and size in real
           time, then export a self-contained HTML file to share or host anywhere.
         </div>
-        <div class="card-link">
-          Open tool
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M3.75 2h8.5A1.75 1.75 0 0 1 14 3.75v8.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5A1.75 1.75 0 0 1 3.75 2zm0 1.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25zM6.97 5.03l3.5 3.5a.75.75 0 0 1 0 1.06l-3.5 3.5a.75.75 0 0 1-1.06-1.06L9.19 9H5.25a.75.75 0 0 1 0-1.5h3.94L5.91 6.09a.75.75 0 0 1 1.06-1.06z"/>
-          </svg>
+        <div class="card-actions">
+          <a class="card-link card-link-tool" href="GenPatternSketchpad/GenPatternSketchpad.html">
+            Open tool
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M3.75 2h8.5A1.75 1.75 0 0 1 14 3.75v8.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5A1.75 1.75 0 0 1 3.75 2zm0 1.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25zM6.97 5.03l3.5 3.5a.75.75 0 0 1 0 1.06l-3.5 3.5a.75.75 0 0 1-1.06-1.06L9.19 9H5.25a.75.75 0 0 1 0-1.5h3.94L5.91 6.09a.75.75 0 0 1 1.06-1.06z"/></svg>
+          </a>
+          <a class="card-link card-link-readme" href="GenPatternSketchpad/README.md">
+            README
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M0 2.75A2.75 2.75 0 0 1 2.75 0h10.5A2.75 2.75 0 0 1 16 2.75v10.5A2.75 2.75 0 0 1 13.25 16H2.75A2.75 2.75 0 0 1 0 13.25ZM2.75 1.5c-.69 0-1.25.56-1.25 1.25v10.5c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25V2.75c0-.69-.56-1.25-1.25-1.25ZM4 5.75A.75.75 0 0 1 4.75 5h6.5a.75.75 0 0 1 0 1.5h-6.5A.75.75 0 0 1 4 5.75Zm0 3A.75.75 0 0 1 4.75 8h6.5a.75.75 0 0 1 0 1.5h-6.5A.75.75 0 0 1 4 8.75Zm0 3a.75.75 0 0 1 .75-.75h4a.75.75 0 0 1 0 1.5h-4A.75.75 0 0 1 4 11.75Z"/></svg>
+          </a>
         </div>
-      </a>
+      </div>
 
-      <a class="card" href="ResearchGallery/researchgallery.html">
+      <div class="card">
         <div class="card-icon">🗂</div>
-        <div class="card-tag">Digital Humanities</div>
+        <div class="card-meta">
+          <span class="card-tag">Digital Humanities</span>
+          <span class="ai-badge ai-gemini">Gemini</span>
+        </div>
         <div class="card-title">Research Gallery Architect</div>
         <div class="card-desc">
           Transform images, GIFs, and archival scans into an annotated,
@@ -223,17 +267,24 @@
           to each item, then export a clean gallery page for dissertations,
           portfolios, or digital exhibits.
         </div>
-        <div class="card-link">
-          Open tool
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M3.75 2h8.5A1.75 1.75 0 0 1 14 3.75v8.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5A1.75 1.75 0 0 1 3.75 2zm0 1.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25zM6.97 5.03l3.5 3.5a.75.75 0 0 1 0 1.06l-3.5 3.5a.75.75 0 0 1-1.06-1.06L9.19 9H5.25a.75.75 0 0 1 0-1.5h3.94L5.91 6.09a.75.75 0 0 1 1.06-1.06z"/>
-          </svg>
+        <div class="card-actions">
+          <a class="card-link card-link-tool" href="ResearchGallery/researchgallery.html">
+            Open tool
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M3.75 2h8.5A1.75 1.75 0 0 1 14 3.75v8.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5A1.75 1.75 0 0 1 3.75 2zm0 1.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25zM6.97 5.03l3.5 3.5a.75.75 0 0 1 0 1.06l-3.5 3.5a.75.75 0 0 1-1.06-1.06L9.19 9H5.25a.75.75 0 0 1 0-1.5h3.94L5.91 6.09a.75.75 0 0 1 1.06-1.06z"/></svg>
+          </a>
+          <a class="card-link card-link-readme" href="ResearchGallery/README.md">
+            README
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M0 2.75A2.75 2.75 0 0 1 2.75 0h10.5A2.75 2.75 0 0 1 16 2.75v10.5A2.75 2.75 0 0 1 13.25 16H2.75A2.75 2.75 0 0 1 0 13.25ZM2.75 1.5c-.69 0-1.25.56-1.25 1.25v10.5c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25V2.75c0-.69-.56-1.25-1.25-1.25ZM4 5.75A.75.75 0 0 1 4.75 5h6.5a.75.75 0 0 1 0 1.5h-6.5A.75.75 0 0 1 4 5.75Zm0 3A.75.75 0 0 1 4.75 8h6.5a.75.75 0 0 1 0 1.5h-6.5A.75.75 0 0 1 4 8.75Zm0 3a.75.75 0 0 1 .75-.75h4a.75.75 0 0 1 0 1.5h-4A.75.75 0 0 1 4 11.75Z"/></svg>
+          </a>
         </div>
-      </a>
+      </div>
 
-      <a class="card" href="argument-mapper/argument-mapper.html">
+      <div class="card">
         <div class="card-icon">⬡</div>
-        <div class="card-tag">Scholarly Visualization</div>
+        <div class="card-meta">
+          <span class="card-tag">Scholarly Visualization</span>
+          <span class="ai-badge ai-chatgpt">ChatGPT</span>
+        </div>
         <div class="card-title">Argument Mapper</div>
         <div class="card-desc">
           Write claims, evidence, counterclaims, and relationships in a
@@ -241,13 +292,17 @@
           visual argument map. Choose debate or cascade layouts, adjust
           themes, and visualize the logic of any scholarly argument.
         </div>
-        <div class="card-link">
-          Open tool
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M3.75 2h8.5A1.75 1.75 0 0 1 14 3.75v8.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5A1.75 1.75 0 0 1 3.75 2zm0 1.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25zM6.97 5.03l3.5 3.5a.75.75 0 0 1 0 1.06l-3.5 3.5a.75.75 0 0 1-1.06-1.06L9.19 9H5.25a.75.75 0 0 1 0-1.5h3.94L5.91 6.09a.75.75 0 0 1 1.06-1.06z"/>
-          </svg>
+        <div class="card-actions">
+          <a class="card-link card-link-tool" href="argument-mapper/argument-mapper.html">
+            Open tool
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M3.75 2h8.5A1.75 1.75 0 0 1 14 3.75v8.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5A1.75 1.75 0 0 1 3.75 2zm0 1.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25zM6.97 5.03l3.5 3.5a.75.75 0 0 1 0 1.06l-3.5 3.5a.75.75 0 0 1-1.06-1.06L9.19 9H5.25a.75.75 0 0 1 0-1.5h3.94L5.91 6.09a.75.75 0 0 1 1.06-1.06z"/></svg>
+          </a>
+          <a class="card-link card-link-readme" href="argument-mapper/README.md">
+            README
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M0 2.75A2.75 2.75 0 0 1 2.75 0h10.5A2.75 2.75 0 0 1 16 2.75v10.5A2.75 2.75 0 0 1 13.25 16H2.75A2.75 2.75 0 0 1 0 13.25ZM2.75 1.5c-.69 0-1.25.56-1.25 1.25v10.5c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25V2.75c0-.69-.56-1.25-1.25-1.25ZM4 5.75A.75.75 0 0 1 4.75 5h6.5a.75.75 0 0 1 0 1.5h-6.5A.75.75 0 0 1 4 5.75Zm0 3A.75.75 0 0 1 4.75 8h6.5a.75.75 0 0 1 0 1.5h-6.5A.75.75 0 0 1 4 8.75Zm0 3a.75.75 0 0 1 .75-.75h4a.75.75 0 0 1 0 1.5h-4A.75.75 0 0 1 4 11.75Z"/></svg>
+          </a>
         </div>
-      </a>
+      </div>
 
     </div>
   </main>
