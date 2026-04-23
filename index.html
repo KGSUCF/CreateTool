@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Low-Code Tools — ENG6819</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d1117;
+      --surface:   #161b22;
+      --border:    #21293a;
+      --accent:    #e94560;
+      --accent2:   #0f3460;
+      --text:      #e6edf3;
+      --muted:     #7d8fa1;
+      --card-hover:#1c2333;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Hero ─────────────────────────────────────── */
+    .hero {
+      padding: 64px 24px 48px;
+      text-align: center;
+      background: linear-gradient(160deg, #0f3460 0%, #0d1117 60%);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(233,69,96,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      border-radius: 20px;
+      padding: 4px 14px;
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+      margin-bottom: 16px;
+    }
+    .hero h1 span { color: var(--accent); }
+    .hero p {
+      font-size: 1rem;
+      color: var(--muted);
+      max-width: 540px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* ── Grid ─────────────────────────────────────── */
+    .grid-section {
+      flex: 1;
+      padding: 52px 24px 64px;
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .section-label {
+      font-size: 0.68rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 28px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    /* ── Card ─────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px 26px 24px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: background 0.18s, border-color 0.18s, transform 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      background: var(--card-hover);
+      border-color: #2d3f55;
+      transform: translateY(-3px);
+    }
+    .card:hover::after { transform: scaleX(1); }
+
+    .card-icon {
+      font-size: 1.9rem;
+      line-height: 1;
+    }
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+    }
+    .card-desc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.65;
+      flex: 1;
+    }
+    .card-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+    .card-link svg {
+      transition: transform 0.15s;
+    }
+    .card:hover .card-link svg { transform: translateX(3px); }
+
+    .card-tag {
+      display: inline-block;
+      font-size: 0.65rem;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px 8px;
+      align-self: flex-start;
+    }
+
+    /* ── Footer ───────────────────────────────────── */
+    footer {
+      text-align: center;
+      padding: 20px 24px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+    footer a { color: var(--muted); text-underline-offset: 3px; }
+  </style>
+</head>
+<body>
+
+  <header class="hero">
+    <div class="hero-tag">UCF ENG6819 · Critical Making</div>
+    <h1>Low-Code <span>Tools</span></h1>
+    <p>
+      A collection of browser-based tools built to lower the barrier between
+      ideas and code. Each tool lets you create, configure, and export
+      — no programming required.
+    </p>
+  </header>
+
+  <main class="grid-section">
+    <div class="section-label">Tools — click any card to open</div>
+    <div class="cards">
+
+      <a class="card" href="GenPatternSketchpad/GenPatternSketchpad.html">
+        <div class="card-icon">◈</div>
+        <div class="card-tag">Generative Art</div>
+        <div class="card-title">Generative Pattern Sketchpad</div>
+        <div class="card-desc">
+          Design animated geometric and particle patterns using sliders and
+          dropdowns. Adjust shape, palette, density, speed, and size in real
+          time, then export a self-contained HTML file to share or host anywhere.
+        </div>
+        <div class="card-link">
+          Open tool
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M3.75 2h8.5A1.75 1.75 0 0 1 14 3.75v8.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5A1.75 1.75 0 0 1 3.75 2zm0 1.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25zM6.97 5.03l3.5 3.5a.75.75 0 0 1 0 1.06l-3.5 3.5a.75.75 0 0 1-1.06-1.06L9.19 9H5.25a.75.75 0 0 1 0-1.5h3.94L5.91 6.09a.75.75 0 0 1 1.06-1.06z"/>
+          </svg>
+        </div>
+      </a>
+
+      <a class="card" href="ResearchGallery/researchgallery.html">
+        <div class="card-icon">🗂</div>
+        <div class="card-tag">Digital Humanities</div>
+        <div class="card-title">Research Gallery Architect</div>
+        <div class="card-desc">
+          Transform images, GIFs, and archival scans into an annotated,
+          sortable HTML gallery. Add titles, dates, and critical analysis
+          to each item, then export a clean gallery page for dissertations,
+          portfolios, or digital exhibits.
+        </div>
+        <div class="card-link">
+          Open tool
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M3.75 2h8.5A1.75 1.75 0 0 1 14 3.75v8.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5A1.75 1.75 0 0 1 3.75 2zm0 1.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25zM6.97 5.03l3.5 3.5a.75.75 0 0 1 0 1.06l-3.5 3.5a.75.75 0 0 1-1.06-1.06L9.19 9H5.25a.75.75 0 0 1 0-1.5h3.94L5.91 6.09a.75.75 0 0 1 1.06-1.06z"/>
+          </svg>
+        </div>
+      </a>
+
+      <a class="card" href="argument-mapper/argument-mapper.html">
+        <div class="card-icon">⬡</div>
+        <div class="card-tag">Scholarly Visualization</div>
+        <div class="card-title">Argument Mapper</div>
+        <div class="card-desc">
+          Write claims, evidence, counterclaims, and relationships in a
+          simple structured syntax — the tool renders them as a styled
+          visual argument map. Choose debate or cascade layouts, adjust
+          themes, and visualize the logic of any scholarly argument.
+        </div>
+        <div class="card-link">
+          Open tool
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M3.75 2h8.5A1.75 1.75 0 0 1 14 3.75v8.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5A1.75 1.75 0 0 1 3.75 2zm0 1.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25zM6.97 5.03l3.5 3.5a.75.75 0 0 1 0 1.06l-3.5 3.5a.75.75 0 0 1-1.06-1.06L9.19 9H5.25a.75.75 0 0 1 0-1.5h3.94L5.91 6.09a.75.75 0 0 1 1.06-1.06z"/>
+          </svg>
+        </div>
+      </a>
+
+    </div>
+  </main>
+
+  <footer>
+    UCF ENG6819 · Critical Making &nbsp;·&nbsp;
+    <a href="https://github.com/kgsucf/createtool" target="_blank" rel="noopener">GitHub Repository</a>
+  </footer>
+
+</body>
+</html>
