@@ -4,13 +4,13 @@ A low-code tool for creating animated generative art patterns — no coding requ
 Adjust the controls, watch your pattern update live in the canvas, then export a
 standalone HTML file you can share or host anywhere.
 
-**[Open the tool → GenPatternSketchpadClaude.html](GenPatternSketchpadClaude.html)**
+**[Open the tool → GenPatternSketchpad.html](GenPatternSketchpad.html)**
 
 ---
 
 ## How to Use
 
-Open `GenPatternSketchpadClaude.html` in any modern web browser. No installation or
+Open `GenPatternSketchpad.html` in any modern web browser. No installation or
 dependencies needed.
 
 ### Controls
