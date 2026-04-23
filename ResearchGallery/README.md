@@ -1,5 +1,7 @@
 # Research Gallery Architect
 
+**[Open the tool → researchgallery.html](researchgallery.html)**
+
 A "low-code" digital humanities utility designed to bridge the gap between archival research and digital presentation. This tool allows scholars and curators to transform raw media files into structured, annotated, and sortable HTML galleries.
 
 ## 🎓 Intended Use Cases

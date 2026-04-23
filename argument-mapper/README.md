@@ -1,5 +1,7 @@
 # Argument Mapper
 
+**[Open the tool → argument-mapper.html](argument-mapper.html)**
+
 Argument Mapper is a low-code scholarly visualization tool that helps users turn structured argumentative writing into a polished visual map. Instead of writing JavaScript, users write a simple text-based syntax describing claims, evidence, counterclaims, rebuttals, and relationships. The tool then renders that input as a presentation-ready argument diagram.
 
 This project was created as a prototype for a course exercise focused on designing new low-code/no-code tools.
